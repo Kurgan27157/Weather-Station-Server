@@ -26,6 +26,10 @@ else:
 
 
 def readSensor():
+    """
+    :return: dict with all current values from sensors
+    """
+
     #read values from dht11 sensor
     humidity_dht, temp_dht = Adafruit_DHT.read_retry(dht, dht_pin)
     #read values from bmp180 sensor
@@ -58,9 +62,16 @@ def readSensor():
             'variance_temp' : variance_temp
         }
     return sensors
-#write values in console
+
+
 def jrun(justrun, sensors_data):
-    if (justrun):
+    """
+    Write current values from all sensors
+    :param justrun:
+    :param sensors_data:
+    :return:
+    """
+    if justrun:
         print 'DHT11:'
         print 'Temp ={0:0.1f}*C'.format(sensors_data['temp_dht']) 
         print 'Humidity={0:0.1f}%'.format(sensors_data['humidity_dht'])
@@ -74,9 +85,16 @@ def jrun(justrun, sensors_data):
         print 'Highest Temp: ' + str(sensors_data['highest_temp'])
         print 'Lowest Temp: '  + str(sensors_data['lowest_temp'])
         print 'Variance Temp: ' + str(sensors_data['variance_temp'])
-#save value into database 
-def into_db(sensors_data):  
-    if (justrun!=True):
+
+
+def into_db(sensors_data):
+    """
+    save all current values from sensors into database
+    :param sensors_data:
+    :return:
+    """
+    if justrun!=True:
+
         conn=sqlite3.connect('Weather.db')
         curs=conn.cursor()
         curs.execute("INSERT INTO dht11(timestamp, temp, humidity) values(datetime('now','localtime'),?,?)",(sensors_data['temp_dht'],sensors_data['humidity_dht']))
@@ -89,9 +107,9 @@ def into_db(sensors_data):
         conn.commit()
 
         conn.close()
-#main loop 
+
 while True:
     sensors_data = readSensor()
-    jrun(justrun,sensors_data)
+    jrun(justrun, sensors_data)
     into_db(sensors_data)
     time.sleep(60)
